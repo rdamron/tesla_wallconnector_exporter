@@ -9,10 +9,19 @@ sources:
       - http://localhost:56852/metrics
     scrape_interval_secs: 15
 
+transforms:
+  rewrite_labels:
+    type: remap
+    inputs: ["twc_metrics"]
+    source: |
+      .tags.job = "prometheus-remote-write"
+      .tags.origin = "hostname"
+      .tags.instance = "hostname:56852"
+
 sinks:
   #  print:
   #    type: "console"
-  #    inputs: ["twc_metrics"]
+  #    inputs: ["rewrite_labels"]
   #    encoding:
   #      codec: "json"
   #      json:
@@ -20,7 +29,7 @@ sinks:
   prometheus_remote:
     type: prometheus_remote_write
     inputs:
-      - twc_metrics
+      - rewrite_labels
     endpoint: https://prometheus.example.com/api/v1/write
     healthcheck:
       enabled: false
