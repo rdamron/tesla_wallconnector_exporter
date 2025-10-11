@@ -1,0 +1,33 @@
+api:
+  enabled: true
+
+sources:
+  # Scrape Prometheus metrics from Tesla Wall Connector exporter
+  twc_metrics:
+    type: prometheus_scrape
+    endpoints:
+      - http://localhost:56852/metrics
+    scrape_interval_secs: 15
+
+sinks:
+  #  print:
+  #    type: "console"
+  #    inputs: ["twc_metrics"]
+  #    encoding:
+  #      codec: "json"
+  #      json:
+  #        pretty: true
+  prometheus_remote:
+    type: prometheus_remote_write
+    inputs:
+      - twc_metrics
+    endpoint: https://prometheus.example.com/api/v1/write
+    healthcheck:
+      enabled: false
+    auth:
+      strategy: basic
+      user: your_username
+      password: your_password
+    batch:
+      max_bytes: 524288
+      max_events: 1

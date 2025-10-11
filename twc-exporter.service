@@ -1,0 +1,13 @@
+[Unit]
+Description=Tesla Wall Connector Prometheus Exporter
+After=network-online.target
+
+[Service]
+User=nobody
+Group=nobody
+Restart=always
+ExecStart=/usr/bin/python3 /opt/twc_fetcher.py twc.local -p 56852 -i 10
+SyslogIdentifier=twc-exporter
+
+[Install]
+WantedBy=multi-user.target
