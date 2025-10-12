@@ -2,6 +2,18 @@
 
 A lightweight, zero-dependency Prometheus exporter for Tesla Wall Connector Gen 3. Written in pure Python using only standard library modules.
 
+A lot of this was inspired by the many available alternatives:
+
+- https://github.com/benclapp/tesla_wall_connector_exporter
+- https://github.com/fynnsh/teslawallconnector-exporter
+- https://github.com/marcsowen/teslawallconnector-exporter
+- https://github.com/realdadfish/teslawallconnector
+
+I wanted something with no external dependencies that could be easily run anywhere Python3 is available, so I asked Copilot to help me out with this.  
+It also includes a couple additional features like access logging and better handling of array and string fields.  
+The architecture is setup for a push model, where vector scrapes the script's `/metrics` endpoint and forwards the metrics to Prometheus (via Prometheus Remote Write) or another system. It also supports direct scraping by Prometheus.
+The Grafana Dashboard is not included here, but you can find one in the other repos mentioned above.
+
 ## Features
 
 ✅ **Zero External Dependencies** - Uses only Python standard library  
@@ -148,23 +160,15 @@ options:
 
 ## Integration with Vector
 
-Create a `vector.yaml` configuration:
+See the included [`vector.yaml`](vector.yaml) configuration file for a complete example.
 
-```yaml
-sources:
-  twc_metrics:
-    type: prometheus_scrape
-    endpoints:
-      - http://localhost:56852/metrics
-    scrape_interval_secs: 15
+The configuration uses `prometheus_scrape` source to collect metrics from the exporter and forwards them via Prometheus Remote Write:
 
-sinks:
-  prometheus_remote_write:
-    type: prometheus_remote_write
-    inputs:
-      - twc_metrics
-    endpoint: http://prometheus:9090/api/v1/write
-```
+- Scrapes `http://localhost:56852/metrics` every 15 seconds
+- Adds custom labels (origin, instance) via VRL transform
+- Forwards to Prometheus using `prometheus_remote_write` sink
+
+Update the endpoint, credentials, and labels as needed for your environment.
 
 ## Integration with Prometheus
 
@@ -181,28 +185,21 @@ scrape_configs:
 
 ### systemd Service
 
-Create `/etc/systemd/system/twc-exporter.service`:
+See the included [`twc-exporter.service`](twc-exporter.service) file for a complete systemd service definition.
 
-```ini
-[Unit]
-Description=Tesla Wall Connector Prometheus Exporter
-After=network.target
-
-[Service]
-Type=simple
-User=nobody
-ExecStart=/usr/bin/python3 /opt/twc_fetcher.py twc.local -p 56852
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
+To install:
 
 ```bash
-sudo systemctl enable --now twc-exporter.service
+# Copy files to system locations
+sudo cp twc_fetcher.py /opt/
+sudo cp twc-exporter.service /etc/systemd/system/
+
+# Enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable twc-exporter.service
+sudo systemctl start twc-exporter.service
+
+# Check status
 sudo systemctl status twc-exporter.service
 ```
 
