@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  tesla-wallconnector-exporter:
+    build: .
+    container_name: twc-exporter
+    restart: unless-stopped
+    ports:
+      - "56852:56852"
+    environment:
+      # Tesla Wall Connector hostname or IP
+      - TWC_HOST=twc.local
+      # Port for the metrics endpoint
+      - TWC_PORT=56852
+      # Update interval in seconds
+      - TWC_INTERVAL=10
+      # Bind address (0.0.0.0 for all interfaces)
+      - TWC_BIND=0.0.0.0
+    # Override the default command to pass custom arguments
+    command: ["${TWC_HOST:-twc.local}", "-p", "${TWC_PORT:-56852}", "-i", "${TWC_INTERVAL:-10}", "-b", "${TWC_BIND:-0.0.0.0}"]
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:56852/').read()"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  monitoring:
+    driver: bridge
