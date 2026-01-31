@@ -16,13 +16,13 @@ The Grafana Dashboard is not included here, but you can find one in the other re
 
 ## Features
 
-✅ **Zero External Dependencies** - Uses only Python standard library  
-✅ **Prometheus Compatible** - Standard `/metrics` endpoint  
-✅ **Complete Coverage** - All 44 metrics from all API endpoints  
-✅ **Smart Type Handling** - Arrays and strings exported as labeled metrics  
-✅ **Auto-refresh** - Background thread updates metrics at configurable intervals  
-✅ **Access Logging** - Logs all HTTP requests with timestamps and status codes  
-✅ **Easy Configuration** - Command-line arguments with sensible defaults
+✅ **Zero External Dependencies** - Uses only Python standard library
+✅ **Prometheus Compatible** - Standard `/metrics` endpoint
+✅ **Complete Coverage** - All 44 metrics from all API endpoints
+✅ **Smart Type Handling** - Arrays and strings exported as labeled metrics
+✅ **Auto-refresh** - Background thread updates metrics at configurable intervals
+✅ **Access Logging** - Logs all HTTP requests with timestamps and status codes
+✅ **Easy Configuration** - Environment variables and command-line arguments with sensible defaults
 
 ## Requirements
 
@@ -156,6 +156,33 @@ options:
   -i, --interval INTERVAL
                         Update interval in seconds (default: 10)
   -b, --bind BIND       Bind address for HTTP server (default: all interfaces)
+```
+
+### Environment Variables
+
+All configuration options can be set via environment variables. Command-line arguments override environment variables.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TWC_ADDRESS` | Tesla Wall Connector hostname or IP address | `twc.local` |
+| `TWC_PORT` | HTTP server port for metrics endpoint | `56852` |
+| `TWC_INTERVAL` | Update interval in seconds | `10` |
+| `TWC_BIND` | Bind address for HTTP server | `` (all interfaces) |
+
+**Example:**
+
+```bash
+# Configure via environment variables
+export TWC_ADDRESS=192.168.1.100
+export TWC_PORT=9225
+export TWC_INTERVAL=30
+export TWC_BIND=0.0.0.0
+
+# Run with environment-based configuration
+python3 twc_fetcher.py
+
+# Command-line arguments still override env vars
+python3 twc_fetcher.py 192.168.1.200  # Uses 192.168.1.200 instead of TWC_ADDRESS
 ```
 
 ## Integration with Vector

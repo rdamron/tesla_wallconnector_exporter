@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 import threading
 import time
@@ -251,28 +252,28 @@ if __name__ == '__main__':
     parser.add_argument(
         'wallconnector',
         nargs='?',
-        default='twc.local',
-        help='Tesla Wall Connector hostname or IP address'
+        default=os.environ.get('TWC_ADDRESS', 'twc.local'),
+        help='Tesla Wall Connector hostname or IP address (env: TWC_ADDRESS)'
     )
-    
+
     parser.add_argument(
         '-p', '--port',
         type=int,
-        default=56852,
-        help='HTTP server port for metrics endpoint'
+        default=int(os.environ.get('TWC_PORT', '56852')),
+        help='HTTP server port for metrics endpoint (env: TWC_PORT)'
     )
-    
+
     parser.add_argument(
         '-i', '--interval',
         type=int,
-        default=10,
-        help='Update interval in seconds'
+        default=int(os.environ.get('TWC_INTERVAL', '10')),
+        help='Update interval in seconds (env: TWC_INTERVAL)'
     )
-    
+
     parser.add_argument(
         '-b', '--bind',
-        default='',
-        help='Bind address for HTTP server (default: all interfaces)'
+        default=os.environ.get('TWC_BIND', ''),
+        help='Bind address for HTTP server (default: all interfaces, env: TWC_BIND)'
     )
     
     args = parser.parse_args()
