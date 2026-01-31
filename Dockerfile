@@ -15,7 +15,7 @@ COPY twc_fetcher.py .
 USER twc
 
 # Default environment variables (can be overridden)
-ENV TWC_HOST=twc.local \
+ENV TWC_ADDRESS=twc.local \
     TWC_PORT=56852 \
     TWC_INTERVAL=10 \
     TWC_BIND=0.0.0.0
